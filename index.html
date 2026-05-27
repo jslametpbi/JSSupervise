@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSSupervise | Thesis, Skripsi, and Dissertation Supervision</title>
+  <meta name="description" content="Professional integrated supervision management app for skripsi, thesis, and dissertation progress control." />
+  <style>
+    * { box-sizing: border-box; }
+    :root{
+      --midnight:#050914;
+      --navy:#071426;
+      --navy2:#0d2142;
+      --navy3:#12325f;
+      --ink:#0b1220;
+      --muted:#64748b;
+      --soft:#f5f7fb;
+      --line:#dbe5f3;
+      --white:#fff;
+      --gold:#c89b2c;
+      --gold2:#f0d37b;
+      --blue:#1d4ed8;
+      --cyan:#38bdf8;
+      --green:#059669;
+      --red:#dc2626;
+      --shadow-lg:0 30px 80px rgba(8,18,36,.16);
+      --shadow-md:0 18px 45px rgba(8,18,36,.10);
+      --shadow-sm:0 10px 28px rgba(8,18,36,.07);
+    }
+    body {
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 12% -5%, rgba(56,189,248,.16), transparent 28%),
+        radial-gradient(circle at 88% 4%, rgba(200,155,44,.18), transparent 25%),
+        radial-gradient(circle at 50% 110%, rgba(29,78,216,.10), transparent 32%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3fa 100%);
+    }
+    button,input,select,textarea { font:inherit; }
+    .app { min-height:100vh; display:flex; }
+    .sidebar {
+      width:330px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), transparent 34%),
+        radial-gradient(circle at 18% 0%, rgba(240,211,123,.18), transparent 30%),
+        linear-gradient(170deg, #030711 0%, #071426 42%, #102a52 100%);
+      color:white;
+      padding:26px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      border-right:1px solid rgba(255,255,255,.10);
+      box-shadow:26px 0 60px rgba(5,9,20,.18);
+    }
+    .brand { display:flex; gap:15px; align-items:center; margin-bottom:26px; }
+    .logo {
+      width:62px; height:62px; border-radius:24px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.95), rgba(219,234,254,.95)),
+        radial-gradient(circle at top right, rgba(240,211,123,.7), transparent 40%);
+      color:#050914;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:950; font-size:22px; letter-spacing:-.05em;
+      box-shadow:0 18px 42px rgba(2,6,23,.35), inset 0 1px 0 rgba(255,255,255,.9);
+      position:relative;
+    }
+    .logo::after{
+      content:""; position:absolute; inset:-2px; border-radius:26px;
+      border:1px solid rgba(240,211,123,.45);
+    }
+    .brand h1 { margin:0; font-size:24px; letter-spacing:-.055em; }
+    .brand p { margin:3px 0 0; color:#b8c6dc; font-size:12px; letter-spacing:.02em; }
+    .role-box, .profile, .lux-panel {
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(12px);
+      border-radius:26px;
+      padding:16px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 14px 34px rgba(0,0,0,.13);
+    }
+    .role-box { margin-bottom:18px; }
+    .role-box p, .profile p { margin:0 0 8px; color:#b7c2d8; font-size:12px; }
+    .profile { margin-top:28px; }
+    .profile strong { color:white; display:block; margin-top:4px; font-size:15px; }
+    .role-box select {
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.13);
+      color:#fff;
+      box-shadow:none;
+    }
+    .nav button {
+      width:100%; display:flex; align-items:center; gap:11px;
+      padding:14px 15px; border:0; border-radius:20px;
+      background:transparent; color:#d9e5f7; cursor:pointer;
+      font-weight:850; margin-bottom:8px; text-align:left;
+      transition:.2s ease; letter-spacing:-.01em;
+    }
+    .nav button.active {
+      background:linear-gradient(135deg, #ffffff 0%, #eef5ff 72%, #fff7db 100%);
+      color:#071426;
+      box-shadow:0 16px 36px rgba(0,0,0,.22);
+    }
+    .nav button:hover:not(.active) { background:rgba(255,255,255,.075); transform:translateX(3px); }
+    .main { flex:1; padding:34px; max-width:1680px; margin:0 auto; }
+    .hero {
+      display:grid;
+      grid-template-columns: 1.9fr .9fr;
+      gap:22px;
+      margin-bottom:24px;
+    }
+    .hero-main, .hero-side {
+      border-radius:36px;
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow-lg);
+    }
+    .hero-main {
+      padding:30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.93), rgba(255,255,255,.78)),
+        radial-gradient(circle at 10% 12%, rgba(56,189,248,.16), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(240,211,123,.22), transparent 28%);
+      border:1px solid rgba(255,255,255,.95);
+      backdrop-filter: blur(18px);
+    }
+    .hero-main::before{
+      content:""; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(29,78,216,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29,78,216,.045) 1px, transparent 1px);
+      background-size:34px 34px;
+      mask-image:linear-gradient(90deg, rgba(0,0,0,.6), transparent 78%);
+      pointer-events:none;
+    }
+    .hero-kicker {
+      display:inline-flex; gap:9px; align-items:center;
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      border:1px solid #dbe8fa;
+      color:#163760;
+      border-radius:999px;
+      padding:10px 15px;
+      font-size:12px;
+      font-weight:900;
+      box-shadow:0 8px 22px rgba(29,78,216,.08);
+      position:relative; z-index:1;
+      letter-spacing:.02em;
+    }
+    h2.page {
+      font-size:48px;
+      margin:16px 0 9px;
+      letter-spacing:-.06em;
+      position:relative; z-index:1;
+      line-height:1.02;
+    }
+    .subtitle {
+      margin:0;
+      max-width:980px;
+      color:#58677c;
+      line-height:1.68;
+      position:relative;
+      z-index:1;
+      font-size:15px;
+    }
+    .hero-meta{
+      display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; position:relative; z-index:1;
+    }
+    .meta-chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border-radius:18px;
+      background:rgba(255,255,255,.88);
+      border:1px solid #e3ecf8;
+      color:#334155;
+      font-size:12px;
+      font-weight:850;
+      box-shadow:var(--shadow-sm);
+    }
+    .hero-side{
+      padding:26px;
+      background:
+        radial-gradient(circle at top right, rgba(240,211,123,.24), transparent 35%),
+        linear-gradient(180deg, #071426 0%, #0d2142 100%);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.10);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .hero-side::after{
+      content:""; position:absolute; left:-80px; bottom:-100px; width:260px; height:260px; border-radius:999px;
+      background:radial-gradient(circle, rgba(56,189,248,.14), transparent 66%);
+    }
+    .hero-side h3{ margin:0 0 10px; font-size:22px; letter-spacing:-.04em; position:relative; z-index:1; }
+    .hero-side p{ margin:0; color:#d0d9ea; line-height:1.62; font-size:14px; position:relative; z-index:1; }
+    .hero-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; position:relative; z-index:1; }
+    .hero-note{
+      margin-top:20px; padding:15px 16px; border-radius:22px;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.11);
+      color:#d9e5f7; font-size:13px; line-height:1.55; position:relative; z-index:1;
+    }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn {
+      border:0;
+      background:linear-gradient(135deg, #071426 0%, #1d4ed8 72%, #3b82f6 100%);
+      color:white;
+      padding:12px 17px;
+      border-radius:17px;
+      cursor:pointer;
+      font-weight:950;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 14px 30px rgba(29,78,216,.22), inset 0 1px 0 rgba(255,255,255,.18);
+      transition:.18s ease;
+    }
+    .btn:hover { transform:translateY(-1px); box-shadow:0 18px 38px rgba(29,78,216,.26); }
+    .btn.secondary {
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      color:#0b1220;
+      border:1px solid #dfe9f7;
+      box-shadow:0 10px 26px rgba(15,23,42,.06);
+    }
+    .btn.danger {
+      background:linear-gradient(180deg,#fff1f2,#ffe4e6);
+      color:#b91c1c; box-shadow:none; border:1px solid #fecdd3;
+    }
+    .btn.green { background:linear-gradient(135deg, #047857 0%, #10b981 100%); }
+    .btn.small { padding:8px 11px; font-size:13px; border-radius:13px; box-shadow:none; }
+    .grid4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-bottom:24px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+    .card {
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.84));
+      border:1px solid rgba(255,255,255,.95);
+      border-radius:30px;
+      box-shadow:var(--shadow-md);
+      backdrop-filter: blur(18px);
+    }
+    .card.pad { padding:24px; }
+    .stat {
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.95);
+    }
+    .stat::before{
+      content:""; position:absolute; top:0; left:0; right:0; height:4px;
+      background:linear-gradient(90deg, var(--blue), var(--gold));
+    }
+    .stat::after{
+      content:""; position:absolute; right:-24px; top:-24px; width:128px; height:128px;
+      background:radial-gradient(circle, rgba(29,78,216,.10), transparent 64%);
+      border-radius:999px;
+    }
+    .stat p { margin:0; color:#64748b; font-size:13px; font-weight:750; }
+    .stat h3 { margin:7px 0 4px; font-size:33px; letter-spacing:-.055em; position:relative; z-index:1; }
+    .stat small { color:#94a3b8; position:relative; z-index:1; }
+    .toolbar {
+      display:grid; grid-template-columns:2fr 1fr 1fr 160px; gap:14px;
+      padding:18px; margin-bottom:20px;
+    }
+    input,select,textarea {
+      width:100%;
+      border:1px solid #d9e5f3;
+      border-radius:17px;
+      padding:12px 14px;
+      outline:none;
+      background:rgba(255,255,255,.94);
+      color:#0b1220;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 5px 18px rgba(15,23,42,.03);
+    }
+    textarea { min-height:94px; resize:vertical; }
+    input:focus,select:focus,textarea:focus { border-color:#78a3ff; box-shadow:0 0 0 4px rgba(59,130,246,.12); }
+    .table-wrap { overflow:auto; border-radius:24px; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th {
+      text-align:left;
+      background:linear-gradient(180deg,#f8fbff,#eef5fd);
+      color:#475569;
+      padding:16px;
+      white-space:nowrap;
+      font-weight:950;
+      border-bottom:1px solid #e3edf8;
+    }
+    td {
+      padding:16px;
+      border-top:1px solid #edf3fa;
+      vertical-align:top;
+      color:#334155;
+    }
+    tr:hover td { background:#fbfdff; }
+    .badge {
+      display:inline-block; padding:6px 10px; border-radius:999px;
+      font-size:12px; font-weight:950; border:1px solid #e2e8f0;
+      background:#f8fafc; color:#334155; white-space:nowrap;
+      box-shadow:0 3px 10px rgba(15,23,42,.03);
+    }
+    .badge.green { color:#047857; background:#ecfdf5; border-color:#a7f3d0; }
+    .badge.red { color:#b91c1c; background:#fef2f2; border-color:#fecaca; }
+    .badge.amber { color:#b45309; background:#fffbeb; border-color:#fde68a; }
+    .badge.blue { color:#1d4ed8; background:#eff6ff; border-color:#bfdbfe; }
+    .badge.purple { color:#7e22ce; background:#faf5ff; border-color:#e9d5ff; }
+    .progress {
+      width:166px; height:12px; background:#e5edf7;
+      border-radius:999px; overflow:hidden; box-shadow:inset 0 1px 3px rgba(15,23,42,.08);
+    }
+    .progress div { height:100%; background:linear-gradient(90deg,#071426,#1d4ed8,#38bdf8); }
+    .empty {
+      border:1px dashed #c7d5e8;
+      background:linear-gradient(180deg,#fcfdff,#f7fbff);
+      border-radius:28px;
+      padding:56px 20px;
+      text-align:center;
+      color:#64748b;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
+    }
+    .empty strong { display:block; color:#0b1220; font-size:18px; margin-bottom:6px; }
+    .drawer-bg {
+      position:fixed; inset:0; background:rgba(2,6,23,.58);
+      display:none; justify-content:flex-end; z-index:50; backdrop-filter: blur(6px);
+    }
+    .drawer-bg.show { display:flex; }
+    .drawer {
+      width:min(800px,100%);
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.07), transparent 28%),
+        #f9fbff;
+      min-height:100vh;
+      overflow:auto;
+      box-shadow:-28px 0 70px rgba(2,6,23,.22);
+    }
+    .drawer-head {
+      position:sticky; top:0;
+      background:rgba(249,251,255,.92);
+      border-bottom:1px solid #e2e8f0;
+      padding:21px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      z-index:2;
+      backdrop-filter: blur(12px);
+    }
+    .drawer-head h3 { margin:0; font-size:23px; letter-spacing:-.04em; }
+    .drawer-head p { margin:4px 0 0; color:#64748b; font-size:13px; }
+    .drawer-body { padding:22px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .span2 { grid-column:span 2; }
+    .mini { color:#64748b; font-size:12px; }
+    .timeline { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .timeline-item {
+      padding:15px;
+      border:1px solid #e3ebf6;
+      border-radius:22px;
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      box-shadow:0 10px 26px rgba(15,23,42,.045);
+    }
+    .timeline-item.done { background:#ecfdf5; border-color:#a7f3d0; }
+    .timeline-item.active { background:#eff6ff; border-color:#bfdbfe; }
+    .doc-preview {
+      background:white;
+      border:1px solid #e2e8f0;
+      border-radius:26px;
+      padding:28px;
+      max-width:860px;
+      margin:0 auto;
+      box-shadow:var(--shadow-lg);
+    }
+    .print-head {
+      display:flex; justify-content:space-between;
+      border-bottom:3px solid #0f172a;
+      padding-bottom:15px;
+      margin-bottom:18px;
+    }
+    .print-title { font-size:28px; font-weight:950; }
+    .settings-note {
+      padding:15px 16px;
+      background:linear-gradient(180deg,#eff6ff,#f8fbff);
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      border-radius:20px;
+      font-size:13px;
+      line-height:1.55;
+    }
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .section-head h3{ margin:0; font-size:23px; letter-spacing:-.04em; }
+    .section-head p{ margin:5px 0 0; color:#64748b; font-size:13px; }
+    .accent-line{
+      width:70px; height:4px; border-radius:999px;
+      background:linear-gradient(90deg,var(--blue),var(--gold));
+      margin-top:11px;
+    }
+    .premium-banner{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:14px;
+      margin-bottom:22px;
+    }
+    .premium-mini{
+      border-radius:24px;
+      padding:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.78));
+      border:1px solid rgba(255,255,255,.92);
+      box-shadow:var(--shadow-sm);
+    }
+    .premium-mini strong{ display:block; font-size:15px; margin-bottom:4px; }
+    .premium-mini span{ color:#64748b; font-size:12px; line-height:1.45; }
+    @media(max-width:1180px){
+      .app{display:block;}
+      .sidebar{width:auto;height:auto;position:relative;}
+      .nav{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+      .grid4{grid-template-columns:1fr 1fr;}
+      .toolbar{grid-template-columns:1fr;}
+      .hero{grid-template-columns:1fr;}
+      .premium-banner{grid-template-columns:1fr;}
+    }
+    @media(max-width:720px){
+      .main{padding:18px;}
+      .grid4,.grid3,.timeline{grid-template-columns:1fr;}
+      .form-grid{grid-template-columns:1fr;}
+      .span2{grid-column:span 1;}
+      h2.page{font-size:35px;}
+    }
+    @media print {
+      body * { visibility:hidden; }
+      #printArea, #printArea * { visibility:visible; }
+      #printArea { position:absolute; left:0; top:0; width:100%; padding:20px; }
+      .no-print { display:none!important; }
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const APP_VERSION = "JSSupervise-2026-05-28";
+const stages = [
+  "Topic Selection","Draft Proposal","Proposal Review","Seminar Proposal",
+  "Instrument Development","Data Collection","Data Analysis","Draft Thesis",
+  "Seminar Hasil","Final Revision","Final Exam","Approved / Completed"
+];
+const degreeTypes = ["Skripsi","Thesis","Dissertation"];
+const studentStatuses = ["Active","Need Revision","Waiting Supervisor","Ready for Seminar","Ready for Exam","Completed","At Risk"];
+const documentStatuses = ["Not Uploaded","Submitted","Under Review","Revision Required","Approved"];
+const meetingStatuses = ["Open","Closed"];
+const roles = ["Manager","Supervisor","Student","Admin"];
+const examTypes = ["Seminar Proposal","Seminar Hasil","Final Exam"];
+
+const defaultSettings = {
+  institutionName: "JSSupervise Executive Academic Supervision Suite",
+  systemOwner: "Dr. Joko Slamet",
+  department: "",
+  academicYear: "2026",
+  defaultReminderDays: "7"
+};
+
+const state = {
+  active: localStorage.getItem("jss_active") || "Dashboard",
+  role: localStorage.getItem("jss_role") || "Manager",
+  students: JSON.parse(localStorage.getItem("jss_students") || "[]"),
+  documents: JSON.parse(localStorage.getItem("jss_documents") || "[]"),
+  meetings: JSON.parse(localStorage.getItem("jss_meetings") || "[]"),
+  exams: JSON.parse(localStorage.getItem("jss_exams") || "[]"),
+  settings: Object.assign({}, defaultSettings, JSON.parse(localStorage.getItem("jss_settings") || "null") || {}),
+  query: "",
+  stageFilter: "All",
+  statusFilter: "All",
+  drawer: null,
+  editItem: null,
+  preview: null
+};
+
+function save(){
+  localStorage.setItem("jss_active", state.active);
+  localStorage.setItem("jss_role", state.role);
+  localStorage.setItem("jss_students", JSON.stringify(state.students));
+  localStorage.setItem("jss_documents", JSON.stringify(state.documents));
+  localStorage.setItem("jss_meetings", JSON.stringify(state.meetings));
+  localStorage.setItem("jss_exams", JSON.stringify(state.exams));
+  localStorage.setItem("jss_settings", JSON.stringify(state.settings));
+}
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function id(prefix, list){ return `${prefix}-${new Date().getFullYear()}-${String(list.length+1).padStart(3,"0")}`; }
+function progressOf(stage){ const i=stages.indexOf(stage); return i<0?0:Math.round(((i+1)/stages.length)*100); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function dueDays(dateStr){ if(!dateStr) return null; const t=new Date(); t.setHours(0,0,0,0); const d=new Date(dateStr+"T00:00:00"); if(isNaN(d)) return null; return Math.ceil((d-t)/86400000); }
+function dueText(dateStr){ const d=dueDays(dateStr); if(d===null) return ["No target",""]; if(d<0) return [`Overdue ${Math.abs(d)} day(s)`,"red"]; if(d===0) return ["Due today","red"]; if(d<=Number(state.settings.defaultReminderDays||7)) return [`Due in ${d} day(s)`,"amber"]; return [`Due in ${d} day(s)`,"green"]; }
+function badge(value){
+  let cls="badge";
+  if(["Completed","Approved","Closed","Passed","Approved / Completed"].includes(value)) cls+=" green";
+  else if(["At Risk","Rejected","Failed","Overdue","Revision Required"].includes(value)) cls+=" red";
+  else if(["Need Revision","Under Review","Open","Waiting Supervisor"].includes(value)) cls+=" amber";
+  else if(["Ready for Seminar","Ready for Exam","Submitted","Active"].includes(value)) cls+=" blue";
+  else if(["Seminar Proposal","Seminar Hasil","Final Exam"].includes(value)) cls+=" purple";
+  return `<span class="${cls}">${esc(value)}</span>`;
+}
+function exportCSV(name, rows){
+  if(!rows.length){ alert("No data to export."); return; }
+  const headers = Object.keys(rows[0]);
+  const csv = [headers.join(","), ...rows.map(r=>headers.map(h=>{
+    let v = Array.isArray(r[h]) ? r[h].join("; ") : String(r[h] ?? "");
+    return /[",\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v;
+  }).join(","))].join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url);
+}
+function studentById(idv){ return state.students.find(s=>s.id===idv); }
+function formData(e){ return Object.fromEntries(new FormData(e.target).entries()); }
+function setActive(x){ state.active=x; save(); render(); }
+function setRole(x){ state.role=x; save(); render(); }
+function openDrawer(type,item=null){ state.drawer=type; state.editItem=item; render(); }
+function closeDrawer(){ state.drawer=null; state.editItem=null; render(); }
+function removeItem(kind, idv){ if(!confirm("Delete this record?")) return; state[kind]=state[kind].filter(x=>x.id!==idv); save(); render(); }
+function openPreview(type,item){ state.preview={type,item}; render(); }
+function closePreview(){ state.preview=null; render(); }
+
+function filteredStudents(){
+  const q=state.query.toLowerCase();
+  return state.students.filter(s=>{
+    const text=[s.id,s.name,s.studentNumber,s.program,s.degreeType,s.title,s.supervisor1,s.supervisor2,s.currentStage,s.status].join(" ").toLowerCase();
+    return text.includes(q) && (state.stageFilter==="All" || s.currentStage===state.stageFilter) && (state.statusFilter==="All" || s.status===state.statusFilter);
+  });
+}
+function filteredDocuments(){ const q=state.query.toLowerCase(); return state.documents.filter(d=>[d.id,d.studentId,d.stage,d.documentName,d.version,d.status,d.supervisorFeedback].join(" ").toLowerCase().includes(q)); }
+function filteredMeetings(){ const q=state.query.toLowerCase(); return state.meetings.filter(m=>[m.id,m.studentId,m.date,m.agenda,m.supervisorNotes,m.studentTasks,m.status].join(" ").toLowerCase().includes(q)); }
+function filteredExams(){ const q=state.query.toLowerCase(); return state.exams.filter(x=>[x.id,x.studentId,x.examType,x.date,x.room,x.status,x.decision].join(" ").toLowerCase().includes(q)); }
+
+function stats(){
+  const total=state.students.length;
+  const avg=total?Math.round(state.students.reduce((s,x)=>s+Number(x.progress||0),0)/total):0;
+  const waiting=state.documents.filter(d=>["Submitted","Under Review"].includes(d.status)).length;
+  const risk=state.students.filter(s=>s.status==="At Risk" || dueText(s.targetDate)[1]==="red").length;
+  const completed=state.students.filter(s=>s.status==="Completed" || s.currentStage==="Approved / Completed").length;
+  return {total,avg,waiting,risk,completed};
+}
+
+function shell(content){
+  const st=stats();
+  const menus = ["Dashboard","Students","Documents","Meetings","Exams","Milestones","Student View","Reports","Settings"];
+  return `<div class="app">
+    <aside class="sidebar no-print">
+      <div class="brand"><div class="logo">JS</div><div><h1>JSSupervise</h1><p>Thesis Supervision System</p></div></div>
+      <div class="role-box"><p>Current Role</p><select onchange="setRole(this.value)">${roles.map(r=>`<option ${state.role===r?'selected':''}>${r}</option>`).join("")}</select></div>
+      <div class="nav">${menus.map(m=>`<button class="${state.active===m?'active':''}" onclick="setActive('${m}')">${menuIcon(m)} ${m}</button>`).join("")}</div>
+      <div class="profile"><p>System Owner</p><strong>${esc(state.settings.systemOwner)}</strong><p>${esc(state.settings.institutionName)}</p></div>
+    </aside>
+    <main class="main">
+      <div class="hero no-print">
+        <div class="hero-main">
+          <div class="hero-kicker">🎓 Exclusive Academic Supervision Workspace</div>
+          <h2 class="page">${esc(state.active)}</h2>
+          <p class="subtitle">An elegant, high-control workspace for supervising skripsi, thesis, and dissertation progress from proposal drafting to final defense. Designed for managers, supervisors, students, and academic administrators in one integrated system.</p>
+          <div class="hero-meta">
+            <div class="meta-chip">Academic Year: ${esc(state.settings.academicYear || "-")}</div>
+            <div class="meta-chip">Role Mode: ${esc(state.role)}</div>
+            <div class="meta-chip">Reminder Window: ${esc(state.settings.defaultReminderDays || "7")} day(s)</div>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div>
+            <h3>Executive Command Panel</h3>
+            <p>Manage student supervision, document feedback, meeting logs, seminars, examinations, and milestone readiness with a more refined and professional interface.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn secondary" onclick='exportCSV("students.csv", state.students)'>⬇ Students</button>
+            <button class="btn secondary" onclick='exportCSV("documents.csv", state.documents)'>⬇ Documents</button>
+            <button class="btn" onclick="openDrawer('student')">＋ New Student</button>
+          </div>
+          <div class="hero-note">This no-API-key version saves data in your current browser using localStorage and is ready for publication on GitHub Pages as an elegant, free online app.</div>
+        </div>
+      </div>
+      <div class="grid4 no-print">
+        ${statCard("Total Students", st.total, "All supervised students")}
+        ${statCard("Average Progress", st.avg+"%", "Across active supervision")}
+        ${statCard("Waiting Review", st.waiting, "Documents needing feedback")}
+        ${statCard("At Risk", st.risk, "Overdue or risk status")}
+      </div>
+      <div class="premium-banner no-print">
+        <div class="premium-mini"><strong>Executive Supervision Control</strong><span>Track every student milestone, document, and academic decision with institutional precision.</span></div>
+        <div class="premium-mini"><strong>Integrated Lecturer-Student Flow</strong><span>Supervisor feedback, student revision response, meetings, and tasks remain connected.</span></div>
+        <div class="premium-mini"><strong>Defense Readiness Monitoring</strong><span>Seminar proposal, seminar hasil, and final exam preparation are visible in one system.</span></div>
+      </div>
+      ${content}
+    </main>
+  </div>${drawerHTML()}${previewHTML()}`;
+}
+function menuIcon(m){ return ({Dashboard:"⌂",Students:"▣",Documents:"▤",Meetings:"☷",Exams:"◈",Milestones:"✓",Reports:"↧",Settings:"⚙","Student View":"◉"})[m] || "•"; }
+function statCard(t,v,s){ return `<div class="card pad stat"><p>${t}</p><h3>${v}</h3><small>${s}</small></div>`; }
+function empty(t,d){ return `<div class="empty"><strong>${t}</strong>${d}</div>`; }
+function toolbar(){
+  return `<div class="card toolbar no-print">
+    <input value="${esc(state.query)}" oninput="state.query=this.value;render()" placeholder="Search student, NIM, title, supervisor, stage, status, or notes">
+    <select onchange="state.stageFilter=this.value;render()"><option>All</option>${stages.map(x=>`<option ${state.stageFilter===x?'selected':''}>${esc(x)}</option>`).join("")}</select>
+    <select onchange="state.statusFilter=this.value;render()"><option>All</option>${studentStatuses.map(x=>`<option ${state.statusFilter===x?'selected':''}>${esc(x)}</option>`).join("")}</select>
+    <button class="btn secondary">Filter</button>
+  </div>`;
+}
+
+function dashboard(){
+  const rows=filteredStudents().slice(0,6);
+  const nextSeminars = state.exams.slice(0,4);
+  return `<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+    <div class="card pad">
+      <div class="section-head">
+        <div><h3>Operational Overview</h3><p>Real-time supervision register for active students.</p><div class="accent-line"></div></div>
+      </div>
+      ${studentTable(rows,true)}
+    </div>
+    <div style="display:grid;gap:20px">
+      <div class="card pad">
+        <div class="section-head"><div><h3>Fast Actions</h3><p>Control the workflow efficiently.</p><div class="accent-line"></div></div></div>
+        <button class="btn" style="width:100%;margin-bottom:10px" onclick="openDrawer('student')">＋ Add Student</button>
+        <button class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openDrawer('document')">▤ Add Document Review</button>
+        <button class="btn secondary" style="width:100%;margin-bottom:10px" onclick="openDrawer('meeting')">☷ Add Supervision Meeting</button>
+        <button class="btn secondary" style="width:100%" onclick="openDrawer('exam')">◈ Schedule Exam/Seminar</button>
+      </div>
+      <div class="card pad">
+        <div class="section-head"><div><h3>Upcoming Seminars & Exams</h3><p>Latest scheduled milestones.</p><div class="accent-line"></div></div></div>
+        ${nextSeminars.length ? nextSeminars.map(x=>`<div class="timeline-item" style="margin-bottom:10px"><strong>${esc(x.examType)}</strong><br><small>${esc((studentById(x.studentId)||{}).name || "-")}</small><br><small>${esc(x.date||"-")} | ${esc(x.room||"-")}</small><div style="margin-top:8px">${badge(x.status || "Scheduled")}</div></div>`).join("") : `<p class="mini">No seminar or exam scheduled yet.</p>`}
+      </div>
+      <div class="settings-note">Executive interface note: this premium version emphasizes institutional authority, refined academic workflow, and a more exclusive supervision-management experience.</div>
+    </div>
+  </div>`;
+}
+function studentTable(rows, compact=false){
+  if(!rows.length) return empty("No students yet","Add supervised students to start tracking skripsi, thesis, and dissertation progress.");
+  return `<div class="${compact?'':'card'} table-wrap"><table><thead><tr><th>Student</th><th>Research Title</th><th>Supervisors</th><th>Stage</th><th>Progress</th><th>Documents</th><th>Meeting</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  ${rows.map(s=>{
+    const docs=state.documents.filter(d=>d.studentId===s.id);
+    const mtgs=state.meetings.filter(m=>m.studentId===s.id);
+    const due=dueText(s.targetDate);
+    return `<tr>
+      <td><strong>${esc(s.name)}</strong><br><small>${esc(s.studentNumber)}</small><br><small>${esc(s.degreeType)} | ${esc(s.program)}</small></td>
+      <td><strong>${esc(s.title)}</strong><br><small>Target: ${esc(s.targetDate||"-")} ${due[0]?`<span class="${due[1]==='red'?'badge red':due[1]==='amber'?'badge amber':'badge green'}">${esc(due[0])}</span>`:""}</small></td>
+      <td>${esc(s.supervisor1||"-")}<br><small>${esc(s.supervisor2||"-")}</small></td>
+      <td>${esc(s.currentStage)}</td>
+      <td><div class="progress"><div style="width:${Number(s.progress||0)}%"></div></div><small>${Number(s.progress||0)}% completed</small></td>
+      <td><strong>${docs.length}</strong><br><small>${docs.filter(d=>d.status==="Approved").length} approved</small></td>
+      <td>Last: ${esc(s.lastMeeting||"-")}<br><small>Next: ${esc(s.nextMeeting||"-")}</small><br><small>Logs: ${mtgs.length}</small></td>
+      <td>${badge(s.status)}</td>
+      <td>
+        <button class="btn small secondary" onclick='openPreview("student", ${JSON.stringify(s)})'>View</button>
+        <button class="btn small secondary" onclick='openDrawer("student", ${JSON.stringify(s)})'>Edit</button>
+        <button class="btn small danger" onclick='removeItem("students","${esc(s.id)}")'>Delete</button>
+      </td>
+    </tr>`;
+  }).join("")}</tbody></table></div>`;
+}
+function studentsPage(){ return toolbar()+studentTable(filteredStudents()); }
+
+function documentsPage(){
+  const rows=filteredDocuments();
+  return `<div class="card pad no-print" style="margin-bottom:20px;display:flex;gap:12px;justify-content:space-between;align-items:center">
+    <input style="max-width:560px" value="${esc(state.query)}" oninput="state.query=this.value;render()" placeholder="Search document, feedback, student, version, stage">
+    <button class="btn" onclick="openDrawer('document')">＋ New Document Review</button>
+  </div>${documentTable(rows)}`;
+}
+function documentTable(rows){
+  if(!rows.length) return empty("No supervision documents yet","Add proposal drafts, thesis chapters, revision documents, seminar files, and final exam documents.");
+  return `<div class="card table-wrap"><table><thead><tr><th>Document</th><th>Student</th><th>Stage</th><th>Submitted</th><th>Feedback</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  ${rows.map(d=>{ const s=studentById(d.studentId); return `<tr><td><strong>${esc(d.documentName)}</strong><br><small>${esc(d.id)} | ${esc(d.version)}</small></td><td>${esc(s?s.name:"-")}</td><td>${esc(d.stage)}</td><td>${esc(d.submitDate)}</td><td style="max-width:360px">${esc(d.supervisorFeedback||"-")}</td><td>${badge(d.status)}</td><td><button class="btn small secondary" onclick='openDrawer("document", ${JSON.stringify(d)})'>Edit</button> <button class="btn small danger" onclick='removeItem("documents","${esc(d.id)}")'>Delete</button></td></tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+function meetingsPage(){
+  const rows=filteredMeetings();
+  return `<div class="card pad no-print" style="margin-bottom:20px;display:flex;gap:12px;justify-content:space-between;align-items:center">
+    <input style="max-width:560px" value="${esc(state.query)}" oninput="state.query=this.value;render()" placeholder="Search meeting, agenda, tasks, notes">
+    <button class="btn" onclick="openDrawer('meeting')">＋ New Meeting</button>
+  </div>${meetingTable(rows)}`;
+}
+function meetingTable(rows){
+  if(!rows.length) return empty("No supervision meetings yet","Record consultation agenda, supervisor notes, student tasks, and next deadlines.");
+  return `<div class="card table-wrap"><table><thead><tr><th>Meeting</th><th>Student</th><th>Agenda</th><th>Tasks</th><th>Deadline</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  ${rows.map(m=>{ const s=studentById(m.studentId); const due=dueText(m.nextDeadline); return `<tr><td><strong>${esc(m.date)}</strong><br><small>${esc(m.id)} | ${esc(m.mode)}</small></td><td>${esc(s?s.name:"-")}</td><td style="max-width:320px">${esc(m.agenda)}</td><td style="max-width:320px">${esc(m.studentTasks||"-")}</td><td>${esc(m.nextDeadline||"-")}<br>${due[0]?`<span class="${due[1]==='red'?'badge red':due[1]==='amber'?'badge amber':'badge green'}">${esc(due[0])}</span>`:""}</td><td>${badge(m.status)}</td><td><button class="btn small secondary" onclick='openDrawer("meeting", ${JSON.stringify(m)})'>Edit</button> <button class="btn small danger" onclick='removeItem("meetings","${esc(m.id)}")'>Delete</button></td></tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+function examsPage(){
+  const rows=filteredExams();
+  return `<div class="card pad no-print" style="margin-bottom:20px;display:flex;gap:12px;justify-content:space-between;align-items:center">
+    <input style="max-width:560px" value="${esc(state.query)}" oninput="state.query=this.value;render()" placeholder="Search exam, seminar, student, room, decision">
+    <button class="btn" onclick="openDrawer('exam')">＋ Schedule Seminar/Exam</button>
+  </div>${examTable(rows)}`;
+}
+function examTable(rows){
+  if(!rows.length) return empty("No seminars or exams scheduled","Schedule seminar proposal, seminar hasil, and final exams with examiners and decision records.");
+  return `<div class="card table-wrap"><table><thead><tr><th>Exam/Seminar</th><th>Student</th><th>Date & Room</th><th>Examiners</th><th>Decision</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  ${rows.map(x=>{ const s=studentById(x.studentId); return `<tr><td><strong>${esc(x.examType)}</strong><br><small>${esc(x.id)}</small></td><td>${esc(s?s.name:"-")}</td><td>${esc(x.date||"-")}<br><small>${esc(x.time||"-")} | ${esc(x.room||"-")}</small></td><td>${esc(x.examiner1||"-")}<br><small>${esc(x.examiner2||"-")}</small></td><td>${esc(x.decision||"-")}</td><td>${badge(x.status||"Scheduled")}</td><td><button class="btn small secondary" onclick='openDrawer("exam", ${JSON.stringify(x)})'>Edit</button> <button class="btn small danger" onclick='removeItem("exams","${esc(x.id)}")'>Delete</button></td></tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+function milestonesPage(){
+  return `<div class="card pad"><h3 style="margin-top:0">Milestone Control Board</h3><p class="mini">Distribution of students across the full supervision pathway.</p><div class="timeline" style="margin-top:18px">
+  ${stages.map(stage=>{ const count=state.students.filter(s=>s.currentStage===stage).length; return `<div class="timeline-item ${count?'active':''}"><strong>${esc(stage)}</strong><div style="font-size:28px;font-weight:950;margin-top:8px">${count}</div><small>student(s)</small></div>`; }).join("")}
+  </div></div>`;
+}
+function studentViewPage(){
+  const s = state.students[0];
+  if(!s) return empty("Student dashboard preview is empty","Add a student first. This area will show student-side progress, submitted documents, feedback, meetings, tasks, and deadlines.");
+  const docs=state.documents.filter(d=>d.studentId===s.id);
+  const mtgs=state.meetings.filter(m=>m.studentId===s.id);
+  return `<div class="grid3">
+    <div class="card pad" style="grid-column:span 2"><h3 style="margin-top:0">Student Dashboard Preview</h3><strong style="font-size:24px">${esc(s.name)}</strong><p class="mini">${esc(s.studentNumber)} | ${esc(s.degreeType)} | ${esc(s.program)}</p><p><strong>${esc(s.title)}</strong></p><div class="progress" style="width:100%;height:16px"><div style="width:${Number(s.progress||0)}%"></div></div><p class="mini">Current stage: <strong>${esc(s.currentStage)}</strong> | ${Number(s.progress||0)}% completed</p></div>
+    <div class="card pad"><h3 style="margin-top:0">My Tasks</h3>${mtgs.length?mtgs.slice(0,5).map(m=>`<div class="timeline-item"><strong>${esc(m.studentTasks||m.agenda)}</strong><br><small>Deadline: ${esc(m.nextDeadline||"-")}</small></div>`).join(""):"<p class='mini'>No task yet.</p>"}</div>
+    <div class="card pad" style="grid-column:span 3"><h3 style="margin-top:0">My Documents and Feedback</h3>${docs.length?`<div class="grid3">${docs.map(d=>`<div class="timeline-item"><strong>${esc(d.documentName)}</strong><br><small>${esc(d.stage)} | ${esc(d.version)}</small><br>${badge(d.status)}<p class="mini">${esc(d.supervisorFeedback||"No feedback yet.")}</p></div>`).join("")}</div>`:"<p class='mini'>No document uploaded yet.</p>"}</div>
+  </div>`;
+}
+function reportsPage(){
+  return `<div class="grid3">
+    <div class="card pad"><h3>Export Students</h3><p class="mini">Download all supervised student records as CSV.</p><button class="btn" onclick='exportCSV("students.csv", state.students)'>Download Students CSV</button></div>
+    <div class="card pad"><h3>Export Documents</h3><p class="mini">Download document review and feedback records.</p><button class="btn" onclick='exportCSV("documents.csv", state.documents)'>Download Documents CSV</button></div>
+    <div class="card pad"><h3>Export Meetings</h3><p class="mini">Download supervision meeting logs and tasks.</p><button class="btn" onclick='exportCSV("meetings.csv", state.meetings)'>Download Meetings CSV</button></div>
+    <div class="card pad"><h3>Print Supervision Summary</h3><p class="mini">Generate printable summary for the first listed student.</p><button class="btn secondary" onclick='openPreview("student", state.students[0])'>Preview Summary</button></div>
+  </div>`;
+}
+function settingsPage(){
+  const s=state.settings;
+  return `<div class="card pad"><h3 style="margin-top:0">System Settings</h3><p class="mini">Customize institution, owner, department, academic year, and due-date reminder rules.</p>
+  <form class="form-grid" onsubmit="saveSettings(event)" style="margin-top:18px">
+    <input name="institutionName" value="${esc(s.institutionName)}" placeholder="Institution / System Name">
+    <input name="systemOwner" value="${esc(s.systemOwner)}" placeholder="System Owner">
+    <input name="department" value="${esc(s.department)}" placeholder="Department / Study Program">
+    <input name="academicYear" value="${esc(s.academicYear)}" placeholder="Academic Year">
+    <input name="defaultReminderDays" type="number" value="${esc(s.defaultReminderDays)}" placeholder="Reminder days">
+    <div></div>
+    <div class="span2" style="display:flex;justify-content:flex-end"><button class="btn">Save Settings</button></div>
+  </form></div>`;
+}
+function saveSettings(e){ e.preventDefault(); state.settings=Object.assign({}, state.settings, formData(e)); save(); alert("Settings saved."); render(); }
+
+function drawerHTML(){
+  if(!state.drawer) return "";
+  const title = state.drawer==="student" ? (state.editItem?"Edit Student Supervision":"Add Student Supervision") : state.drawer==="document" ? (state.editItem?"Edit Document Review":"Add Document Review") : state.drawer==="meeting" ? (state.editItem?"Edit Supervision Meeting":"Add Supervision Meeting") : (state.editItem?"Edit Exam/Seminar":"Schedule Exam/Seminar");
+  const form = state.drawer==="student" ? studentForm() : state.drawer==="document" ? documentForm() : state.drawer==="meeting" ? meetingForm() : examForm();
+  return `<div class="drawer-bg show no-print"><div class="drawer"><div class="drawer-head"><div><h3>${title}</h3><p>Complete the form and save the record.</p></div><button class="btn secondary small" onclick="closeDrawer()">✕</button></div><div class="drawer-body">${form}</div></div></div>`;
+}
+function val(obj,k,def=""){ return esc((obj&&obj[k]!==undefined)?obj[k]:def); }
+function studentForm(){
+  const s=state.editItem||{};
+  return `<form class="form-grid" onsubmit="saveStudentForm(event)">
+    <input name="id" value="${val(s,'id',id('STD',state.students))}" placeholder="Student Supervision ID" required>
+    <input name="studentNumber" value="${val(s,'studentNumber')}" placeholder="Student Number / NIM" required>
+    <input name="name" value="${val(s,'name')}" placeholder="Student Name" required>
+    <input name="program" value="${val(s,'program')}" placeholder="Study Program">
+    <select name="degreeType">${degreeTypes.map(x=>`<option ${s.degreeType===x?'selected':''}>${x}</option>`).join("")}</select>
+    <select name="status">${studentStatuses.map(x=>`<option ${s.status===x?'selected':''}>${x}</option>`).join("")}</select>
+    <textarea class="span2" name="title" placeholder="Research Title" required>${val(s,'title')}</textarea>
+    <input name="supervisor1" value="${val(s,'supervisor1')}" placeholder="Supervisor 1">
+    <input name="supervisor2" value="${val(s,'supervisor2')}" placeholder="Supervisor 2">
+    <input name="examiner1" value="${val(s,'examiner1')}" placeholder="Examiner 1">
+    <input name="examiner2" value="${val(s,'examiner2')}" placeholder="Examiner 2">
+    <select name="currentStage" onchange="this.form.progress.value=progressOf(this.value)">${stages.map(x=>`<option ${s.currentStage===x?'selected':''}>${x}</option>`).join("")}</select>
+    <input name="progress" type="number" value="${val(s,'progress', progressOf(s.currentStage||'Topic Selection'))}" placeholder="Progress %">
+    <input name="startDate" type="date" value="${val(s,'startDate',today())}">
+    <input name="targetDate" type="date" value="${val(s,'targetDate')}">
+    <input name="lastMeeting" type="date" value="${val(s,'lastMeeting')}">
+    <input name="nextMeeting" type="date" value="${val(s,'nextMeeting')}">
+    <textarea class="span2" name="notes" placeholder="Supervisor notes, risk notes, next action">${val(s,'notes')}</textarea>
+    <div class="span2" style="display:flex;justify-content:flex-end;gap:10px"><button type="button" class="btn secondary" onclick="closeDrawer()">Cancel</button><button class="btn">Save Student</button></div>
+  </form>`;
+}
+function documentForm(){
+  const d=state.editItem||{};
+  return `<form class="form-grid" onsubmit="saveDocumentForm(event)">
+    <input name="id" value="${val(d,'id',id('DOC',state.documents))}" placeholder="Document ID" required>
+    <select name="studentId" required><option value="">Select Student</option>${state.students.map(s=>`<option value="${esc(s.id)}" ${d.studentId===s.id?'selected':''}>${esc(s.name)} - ${esc(s.studentNumber)}</option>`).join("")}</select>
+    <select name="stage">${stages.map(x=>`<option ${d.stage===x?'selected':''}>${x}</option>`).join("")}</select>
+    <select name="status">${documentStatuses.map(x=>`<option ${d.status===x?'selected':''}>${x}</option>`).join("")}</select>
+    <input name="documentName" value="${val(d,'documentName')}" placeholder="Document Name / Chapter / File Label" required>
+    <input name="version" value="${val(d,'version','V1')}" placeholder="Version">
+    <input name="submitDate" type="date" value="${val(d,'submitDate',today())}">
+    <input name="fileLink" value="${val(d,'fileLink')}" placeholder="Optional file link / Google Drive URL">
+    <textarea class="span2" name="supervisorFeedback" placeholder="Supervisor feedback">${val(d,'supervisorFeedback')}</textarea>
+    <textarea class="span2" name="studentResponse" placeholder="Student response / revision explanation">${val(d,'studentResponse')}</textarea>
+    <div class="span2" style="display:flex;justify-content:flex-end;gap:10px"><button type="button" class="btn secondary" onclick="closeDrawer()">Cancel</button><button class="btn">Save Document</button></div>
+  </form>`;
+}
+function meetingForm(){
+  const m=state.editItem||{};
+  return `<form class="form-grid" onsubmit="saveMeetingForm(event)">
+    <input name="id" value="${val(m,'id',id('MTG',state.meetings))}" placeholder="Meeting ID" required>
+    <select name="studentId" required><option value="">Select Student</option>${state.students.map(s=>`<option value="${esc(s.id)}" ${m.studentId===s.id?'selected':''}>${esc(s.name)} - ${esc(s.studentNumber)}</option>`).join("")}</select>
+    <input name="date" type="date" value="${val(m,'date',today())}">
+    <select name="mode"><option ${m.mode==='Offline'?'selected':''}>Offline</option><option ${m.mode==='Online'?'selected':''}>Online</option><option ${m.mode==='Hybrid'?'selected':''}>Hybrid</option></select>
+    <input class="span2" name="agenda" value="${val(m,'agenda')}" placeholder="Supervision agenda" required>
+    <textarea class="span2" name="supervisorNotes" placeholder="Supervisor notes">${val(m,'supervisorNotes')}</textarea>
+    <textarea class="span2" name="studentTasks" placeholder="Student tasks after meeting">${val(m,'studentTasks')}</textarea>
+    <input name="nextDeadline" type="date" value="${val(m,'nextDeadline')}">
+    <select name="status">${meetingStatuses.map(x=>`<option ${m.status===x?'selected':''}>${x}</option>`).join("")}</select>
+    <div class="span2" style="display:flex;justify-content:flex-end;gap:10px"><button type="button" class="btn secondary" onclick="closeDrawer()">Cancel</button><button class="btn">Save Meeting</button></div>
+  </form>`;
+}
+function examForm(){
+  const x=state.editItem||{};
+  return `<form class="form-grid" onsubmit="saveExamForm(event)">
+    <input name="id" value="${val(x,'id',id('EXM',state.exams))}" placeholder="Exam/Seminar ID" required>
+    <select name="studentId" required><option value="">Select Student</option>${state.students.map(s=>`<option value="${esc(s.id)}" ${x.studentId===s.id?'selected':''}>${esc(s.name)} - ${esc(s.studentNumber)}</option>`).join("")}</select>
+    <select name="examType">${examTypes.map(t=>`<option ${x.examType===t?'selected':''}>${t}</option>`).join("")}</select>
+    <input name="date" type="date" value="${val(x,'date',today())}">
+    <input name="time" value="${val(x,'time')}" placeholder="Time, e.g. 09:00">
+    <input name="room" value="${val(x,'room')}" placeholder="Room / Zoom link">
+    <input name="examiner1" value="${val(x,'examiner1')}" placeholder="Examiner 1">
+    <input name="examiner2" value="${val(x,'examiner2')}" placeholder="Examiner 2">
+    <select name="status"><option ${x.status==='Scheduled'?'selected':''}>Scheduled</option><option ${x.status==='Completed'?'selected':''}>Completed</option><option ${x.status==='Postponed'?'selected':''}>Postponed</option><option ${x.status==='Cancelled'?'selected':''}>Cancelled</option></select>
+    <select name="decision"><option ${x.decision===''?'selected':''}></option><option ${x.decision==='Passed'?'selected':''}>Passed</option><option ${x.decision==='Passed with Revision'?'selected':''}>Passed with Revision</option><option ${x.decision==='Failed'?'selected':''}>Failed</option></select>
+    <textarea class="span2" name="notes" placeholder="Exam notes, revision requirements, decision notes">${val(x,'notes')}</textarea>
+    <div class="span2" style="display:flex;justify-content:flex-end;gap:10px"><button type="button" class="btn secondary" onclick="closeDrawer()">Cancel</button><button class="btn">Save Exam</button></div>
+  </form>`;
+}
+function saveStudentForm(e){ e.preventDefault(); const x=formData(e); x.progress=Number(x.progress||progressOf(x.currentStage)); const i=state.students.findIndex(s=>s.id===x.id); if(i>=0) state.students[i]=x; else state.students.unshift(x); save(); closeDrawer(); }
+function saveDocumentForm(e){ e.preventDefault(); const x=formData(e); const i=state.documents.findIndex(d=>d.id===x.id); if(i>=0) state.documents[i]=x; else state.documents.unshift(x); if(x.status==="Approved"){ const s=studentById(x.studentId); if(s){ s.currentStage=x.stage; s.progress=Math.max(Number(s.progress||0), progressOf(x.stage)); } } save(); closeDrawer(); }
+function saveMeetingForm(e){ e.preventDefault(); const x=formData(e); const i=state.meetings.findIndex(m=>m.id===x.id); if(i>=0) state.meetings[i]=x; else state.meetings.unshift(x); const s=studentById(x.studentId); if(s){ s.lastMeeting=x.date; if(x.nextDeadline) s.nextMeeting=x.nextDeadline; } save(); closeDrawer(); }
+function saveExamForm(e){ e.preventDefault(); const x=formData(e); const i=state.exams.findIndex(a=>a.id===x.id); if(i>=0) state.exams[i]=x; else state.exams.unshift(x); const s=studentById(x.studentId); if(s && x.status==="Completed"){ if(x.examType==="Seminar Proposal") s.currentStage="Seminar Proposal"; if(x.examType==="Seminar Hasil") s.currentStage="Seminar Hasil"; if(x.examType==="Final Exam") s.currentStage="Final Exam"; s.progress=Math.max(Number(s.progress||0), progressOf(s.currentStage)); } save(); closeDrawer(); }
+
+function previewHTML(){
+  if(!state.preview || !state.preview.item) return "";
+  const s = state.preview.item;
+  const docs=state.documents.filter(d=>d.studentId===s.id);
+  const mtgs=state.meetings.filter(m=>m.studentId===s.id);
+  const exams=state.exams.filter(e=>e.studentId===s.id);
+  return `<div class="drawer-bg show"><div class="drawer"><div class="drawer-head no-print"><div><h3>Student Supervision Summary</h3><p>Preview and print supervision progress summary.</p></div><div><button class="btn secondary small" onclick="window.print()">Print</button> <button class="btn secondary small" onclick="closePreview()">✕</button></div></div><div class="drawer-body"><div id="printArea"><div class="doc-preview">
+    <div class="print-head"><div><strong>${esc(state.settings.institutionName)}</strong><br><small>${esc(state.settings.department||"Integrated Supervision System")}</small></div><div class="print-title">SUPERVISION SUMMARY</div></div>
+    <h2>${esc(s.name)}</h2><p>${esc(s.studentNumber)} | ${esc(s.degreeType)} | ${esc(s.program)}</p>
+    <h3>Research Title</h3><p>${esc(s.title)}</p>
+    <table><tr><th>Supervisor 1</th><td>${esc(s.supervisor1||"-")}</td><th>Supervisor 2</th><td>${esc(s.supervisor2||"-")}</td></tr><tr><th>Current Stage</th><td>${esc(s.currentStage)}</td><th>Progress</th><td>${esc(s.progress)}%</td></tr><tr><th>Status</th><td>${esc(s.status)}</td><th>Target Date</th><td>${esc(s.targetDate||"-")}</td></tr></table>
+    <h3>Documents</h3>${docs.length?`<table><tr><th>Document</th><th>Stage</th><th>Status</th><th>Feedback</th></tr>${docs.map(d=>`<tr><td>${esc(d.documentName)}</td><td>${esc(d.stage)}</td><td>${esc(d.status)}</td><td>${esc(d.supervisorFeedback||"-")}</td></tr>`).join("")}</table>`:"<p>No document record.</p>"}
+    <h3>Meetings</h3>${mtgs.length?`<table><tr><th>Date</th><th>Agenda</th><th>Tasks</th><th>Deadline</th></tr>${mtgs.map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.agenda)}</td><td>${esc(m.studentTasks||"-")}</td><td>${esc(m.nextDeadline||"-")}</td></tr>`).join("")}</table>`:"<p>No meeting record.</p>"}
+    <h3>Seminars / Exams</h3>${exams.length?`<table><tr><th>Type</th><th>Date</th><th>Room</th><th>Decision</th></tr>${exams.map(x=>`<tr><td>${esc(x.examType)}</td><td>${esc(x.date)}</td><td>${esc(x.room||"-")}</td><td>${esc(x.decision||"-")}</td></tr>`).join("")}</table>`:"<p>No exam record.</p>"}
+  </div></div></div></div>`;
+}
+
+function render(){
+  let content = state.active==="Dashboard" ? dashboard() :
+    state.active==="Students" ? studentsPage() :
+    state.active==="Documents" ? documentsPage() :
+    state.active==="Meetings" ? meetingsPage() :
+    state.active==="Exams" ? examsPage() :
+    state.active==="Milestones" ? milestonesPage() :
+    state.active==="Student View" ? studentViewPage() :
+    state.active==="Reports" ? reportsPage() : settingsPage();
+  document.getElementById("app").innerHTML = shell(content);
+}
+render();
+</script>
+</body>
+</html>

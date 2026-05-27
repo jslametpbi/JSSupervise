@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JSSupervise | Thesis, Skripsi, and Dissertation Supervision</title>
-  <meta name="description" content="Professional integrated supervision management app for skripsi, thesis, and dissertation progress control." />
-  <style>
+<style>
     * { box-sizing: border-box; }
     :root{
       --midnight:#050914;
@@ -435,14 +434,14 @@
     }
   </style>
 
-  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="manifest" href="./manifest.json?v=final3">
   <meta name="theme-color" content="#071426">
   <meta name="background-color" content="#f6f8fc">
   <meta name="description" content="An executive academic supervision app for managing skripsi, thesis, and dissertation progress from proposal to final defense.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="JSSupervise">
-  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="apple-touch-icon" href="https://jslametpbi.github.io/JSSupervise/icons/icon-180.png">
 
 </head>
 <body>
@@ -858,7 +857,7 @@ render();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+    navigator.serviceWorker.register("./sw-clean.js?v=final3", { scope: "./" }).catch(() => {});
   });
 }
 

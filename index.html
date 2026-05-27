@@ -437,10 +437,12 @@
 
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#071426">
+  <meta name="background-color" content="#f6f8fc">
+  <meta name="description" content="An executive academic supervision app for managing skripsi, thesis, and dissertation progress from proposal to final defense.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="JSSupervise">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
 
 </head>
 <body>
@@ -856,7 +858,7 @@ render();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
   });
 }
 

@@ -434,6 +434,14 @@
       .no-print { display:none!important; }
     }
   </style>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#071426">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="JSSupervise">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
 </head>
 <body>
 <div id="app"></div>
@@ -845,6 +853,13 @@ function render(){
   document.getElementById("app").innerHTML = shell(content);
 }
 render();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+
 </script>
 </body>
 </html>
